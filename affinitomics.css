@@ -1,0 +1,19 @@
+/*
+Affinitomics™
+Copyright (C) 2014 Prefrent
+*/
+
+.afpost_metabox {
+	width:33%;
+	float:left;
+	min-height:100px;
+}
+
+.afpost_metabox textarea {
+	width:90%;
+	height:69px;
+}
+
+.afpost_metabox p {
+	padding-right:20px;
+}
