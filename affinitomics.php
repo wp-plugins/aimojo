@@ -3,7 +3,7 @@
 Plugin Name: aimojo
 Plugin URI: http://prefrent.com
 Description: Apply Affinitomic Descriptors, Draws, and Distance to Posts and Pages.  Shortcode to display Affinitomic relationships. Google CSE with Affinitomics.
-Version: 1.0.2
+Version: 1.1
 Author: Prefrent
 Author URI: http://prefrent.com
 */
@@ -54,19 +54,19 @@ add_action( 'init', 'my_script_enqueuer' );
 /**
  * Attached to activate_{ plugin_basename( __FILES__ ) } by register_activation_hook()
  */
-function plugin_activation() 
+function plugin_activation()
 {
     $message = '';
-    if ( version_compare( $GLOBALS['wp_version'], AI_MOJO__MINIMUM_WP_VERSION, '<' ) ) 
+    if ( version_compare( $GLOBALS['wp_version'], AI_MOJO__MINIMUM_WP_VERSION, '<' ) )
     {
       load_plugin_textdomain( 'aimojo' );
-      
+
       $message = sprintf(esc_html__( 'aimojo %s requires WordPress %s or higher.' , 'aimojo'), AI_MOJO__VERSION, AI_MOJO__MINIMUM_WP_VERSION ).sprintf(__('Please upgrade WordPress to a current version.', 'aimojo'), 'https://codex.wordpress.org/Upgrading_WordPress', 'http://wordpress.org/extend/plugins/aimojo/download/');
 
    }
-   else 
+   else
    {
-      af_check_for_errors();       
+      af_check_for_errors();
 
       $af_errors = get_option('af_errors', '');
       $af_error_code = get_option('af_error_code', '');
@@ -87,9 +87,9 @@ function plugin_activation()
     }
 }
 
-function plugin_deactivation( ) 
+function plugin_deactivation( )
 {
-  //TODO: 
+  //TODO:
 }
 
 
@@ -201,7 +201,7 @@ function af_verify_provider()
   $af_cloud_url = get_option('af_cloud_url', '');
   if (!isset($af_cloud_url) || $af_cloud_url == "")
   {
-    $af_cloud_url = 'www.affinitomics.com';  
+    $af_cloud_url = 'www.affinitomics.com';
     update_option( 'af_cloud_url' , $af_cloud_url );
   }
   return $af_cloud_url;
