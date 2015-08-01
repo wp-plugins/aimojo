@@ -1,33 +1,44 @@
 Plugin Name: Affinitomics
-Author: Hans Hauge, Joe Wilson, Rob Hust (Prefrent).
+Author: Joe Wilson, Rob Hust (Prefrent).
 
 Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
-1.0.0
+1.1
 ----------------------------------------------------------------------
-- Yay! We’ve released Ai•mojo!
-- Twilighting support for Affinitomics for Wordpress.
-- Over 10x faster than Affinitomics for Wordpress .9.0
+- updated domain assignment for unregistered users
+- add version syncing code for communication with server
+- resolved issue for legacy users with ajax pointing to wrong directory
+- updated pathing from WP_PLUGIN_URL to recommended best practices plugins_url()
+- added plugin_activation function so the plugin can perform immediate, necessary actions upon the plugin being activated by the user in wordpress
 
-0.9.6
+1.0
 ----------------------------------------------------------------------
-- Changed how plugin syncs with cloud to resolve 502 error for large collections
-- Included anonymous API key support
-- Added registration with Affinitomics.com
+- Removed "archetypes"
+- cloud sync now done via ajax
+- completely re-built back-end (IQ cloud)
+- related views now done via ajax
+- Removed complicated features
+- Simplifies the sign-up process
+- User dashboards and subscriptions offered via IQ-cloud
+- Various bug fixes and improvements
+- added wordpress version checks in plugin_activation to provide error information to user if they are using an incompatible version of wordpress
 
 0.9.0
 ----------------------------------------------------------------------
-- Corrected issue syncing with cloud
-- Fixed bug related to implementation of CSE
+- Cleaned up admin settings
+- Improved uploading to cloud
+- Sped up oporations within Wordpress
+- Integration with Affinitomics Taxonomy Converter
+- Various bugfixes and improvements
 
 0.7.0
 ----------------------------------------------------------------------
 - CSS Styling hooks!
 - Support for WooCommerce!
 
-0.6.06
+=0.6.06=
 ----------------------------------------------------------------------
 - Changes to internal documentation
 - Other little bug fixes/improvements
@@ -35,6 +46,7 @@ Change Log:
 0.6.05
 ----------------------------------------------------------------------
 - Corrections in readme.txt and documentation
+
 
 0.6.04
 ----------------------------------------------------------------------

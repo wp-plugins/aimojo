@@ -3,7 +3,7 @@
 Plugin Name: aimojo
 Plugin URI: http://prefrent.com
 Description: Apply Affinitomic Descriptors, Draws, and Distance to Posts and Pages.  Shortcode to display Affinitomic relationships. Google CSE with Affinitomics.
-Version: 1.0.0
+Version: 1.0.2
 Author: Prefrent
 Author URI: http://prefrent.com
 */
@@ -29,6 +29,15 @@ Copyright (C) 2015 Prefrent
 // | MA 02110-1301 USA                                                    |
 // +----------------------------------------------------------------------+
 
+define( 'AI_MOJO__VERSION', '1.1.0' );
+define( 'AI_MOJO__TYPE', 'aimojo_wp' );
+define( 'AI_MOJO__MINIMUM_WP_VERSION', '3.5' );
+define( 'AI_MOJO__PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'AI_MOJO__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+
+register_activation_hook( __FILE__, 'plugin_activation' );
+register_deactivation_hook( __FILE__, 'plugin_deactivation' );
+
 wp_enqueue_style( 'afpost-style', plugins_url('affinitomics.css', __FILE__) );
 
 // This is so we can check if the affinitomics taxonomy converter plugin is installed
@@ -40,8 +49,95 @@ global $afview_count;
 $afview_count = 0;
 add_action( 'init', 'my_script_enqueuer' );
 
+
+
+/**
+ * Attached to activate_{ plugin_basename( __FILES__ ) } by register_activation_hook()
+ */
+function plugin_activation() 
+{
+    $message = '';
+    if ( version_compare( $GLOBALS['wp_version'], AI_MOJO__MINIMUM_WP_VERSION, '<' ) ) 
+    {
+      load_plugin_textdomain( 'aimojo' );
+      
+      $message = sprintf(esc_html__( 'aimojo %s requires WordPress %s or higher.' , 'aimojo'), AI_MOJO__VERSION, AI_MOJO__MINIMUM_WP_VERSION ).sprintf(__('Please upgrade WordPress to a current version.', 'aimojo'), 'https://codex.wordpress.org/Upgrading_WordPress', 'http://wordpress.org/extend/plugins/aimojo/download/');
+
+   }
+   else 
+   {
+      af_check_for_errors();       
+
+      $af_errors = get_option('af_errors', '');
+      $af_error_code = get_option('af_error_code', '');
+
+      if(strlen($af_errors) > 0)
+      {
+        $message = sprintf(esc_html__( 'aimojo: %s ' , 'aimojo'), $af_errors);
+      }
+
+      af_update_url();
+
+    }
+
+
+    if (strlen($message) > 0)
+    {
+      bail_on_activation( $message );
+    }
+}
+
+function plugin_deactivation( ) 
+{
+  //TODO: 
+}
+
+
+function bail_on_activation( $message, $deactivate = true ) {
+?>
+<!doctype html>
+<html>
+<head>
+<meta charset="<?php bloginfo( 'charset' ); ?>">
+<style>
+* {
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  font-family: "Lucida Grande",Verdana,Arial,"Bitstream Vera Sans",sans-serif;
+}
+p {
+  margin-top: 1em;
+  font-size: 18px;
+}
+</style>
+<body>
+<p><?php echo esc_html( $message ); ?></p>
+</body>
+</html>
+<?php
+    if ( $deactivate ) {
+      $plugins = get_option( 'active_plugins' );
+      $aimojo = plugin_basename( AI_MOJO__PLUGIN_DIR . 'affinitomics.php' );
+      $update  = false;
+      foreach ( $plugins as $i => $plugin ) {
+        if ( $plugin === $akismet ) {
+          $plugins[$i] = false;
+          $update = true;
+        }
+      }
+
+      if ( $update ) {
+        update_option( 'active_plugins', array_filter( $plugins ) );
+      }
+    }
+    exit;
+  }
+
+
 function my_script_enqueuer() {
-   wp_register_script( "affinitomics_ajax_script", WP_PLUGIN_URL.'/affinitomics/affinitomics_ajax_script.js', array('jquery') );
+   $plugins_ajax_script_url = plugins_url( 'affinitomics_ajax_script.js', __FILE__ );
+   wp_register_script( "affinitomics_ajax_script", $plugins_ajax_script_url, array('jquery') );
    wp_localize_script( 'affinitomics_ajax_script', 'myAjax', array( 'ajaxurl' => admin_url( 'admin-ajax.php' )));
 
    wp_enqueue_script( 'jquery' );
@@ -50,8 +146,8 @@ function my_script_enqueuer() {
 }
 
 function custom_restore_function($post_ID) {
-  $the_key = get_option('af_key');
-  $af_cloud_url = get_option('af_cloud_url', '');
+  $the_key = af_verify_key();
+  $af_cloud_url = af_verify_provider();
   $url = get_permalink($post_ID);
   $request = curl_request($af_cloud_url . "/api/restore_resource?user_key=" . $the_key . '&uid=' . $post_ID . '&url=' . $url);
 }
@@ -75,20 +171,24 @@ function remove_extra_submenu_items() {
   unset($submenu["edit.php?post_type=archetype"][5]);
 }
 
-function af_verify_key(){
-  $the_key = get_option('af_key');
-  $af_cloud_url = get_option('af_cloud_url', '');
+function af_verify_key()
+{
+  $af_key = get_option('af_key');
+    if (!isset($af_key) || $af_key == "")
+    {
+      $af_cloud_url = af_verify_provider();
+      $request = curl_request($af_cloud_url . "/api/anon_key");
+      $response = json_decode($request, true);
+      $af_key = $response['data']['anon_key'];
+      update_option( 'af_key' , $af_key );
 
-  if (!isset($the_key) || $the_key == ""){
-    $request = curl_request($af_cloud_url . "/api/anon_key");
-    $response = json_decode($request, true);
-    update_option( 'af_key' , $response['data']['anon_key'] );
   }
+  return $af_key;
 }
 
 function af_check_for_errors(){
-  $the_key = get_option('af_key');
-  $af_cloud_url = get_option('af_cloud_url', '');
+  $the_key = af_verify_key();
+  $af_cloud_url = af_verify_provider();
 
   $request = curl_request($af_cloud_url . "/check_for_errors?user_key=" . $the_key);
   $response = json_decode($request, true);
@@ -96,9 +196,36 @@ function af_check_for_errors(){
   update_option( 'af_error_code' , $response['data']['af_error_code'] );
 }
 
-function af_verify_provider(){
-  update_option( 'af_cloud_url' , 'vast-savannah-3299.herokuapp.com' );
+function af_verify_provider()
+{
+  $af_cloud_url = get_option('af_cloud_url', '');
+  if (!isset($af_cloud_url) || $af_cloud_url == "")
+  {
+    $af_cloud_url = 'www.affinitomics.com';  
+    update_option( 'af_cloud_url' , $af_cloud_url );
+  }
+  return $af_cloud_url;
 }
+
+
+function af_update_url()
+{
+     $affinitomics = array(
+      'url' =>  get_site_url(),
+      'title' => '',
+      'descriptors' => '',
+      'draws' => '',
+      'distances' => '',
+      'key' => af_verify_key(),
+      'uid' => '',
+      'category' => '',
+      'status' => ''
+    );
+    if ($afid) $affinitomics['afid'] = $afid;
+    $af_cloudify_url = get_option('af_cloud_url') . '/api/affinitomics/cloudify/' . af_verify_key() . '/';
+    $request = curl_request($af_cloudify_url, $affinitomics);
+}
+
 
 /* Save Custom DATA */
 function afpost_save_postdata() {
@@ -162,13 +289,13 @@ function afpost_save_postdata() {
       'descriptors' => $afpost_descriptors,
       'draws' => $afpost_draw,
       'distances' => $afpost_distance,
-      'key' => get_option('af_key'),
+      'key' => af_verify_key(),
       'uid' => $post_ID,
       'category' => $cat_string,
       'status' => $post_status
     );
     if ($afid) $affinitomics['afid'] = $afid;
-    $af_cloudify_url = get_option('af_cloud_url') . '/api/affinitomics/cloudify/' . get_option('af_key') . '/';
+    $af_cloudify_url = get_option('af_cloud_url') . '/api/affinitomics/cloudify/' . af_verify_key() . '/';
     $request = curl_request($af_cloudify_url, $affinitomics);
 
     $af = json_decode($request, true);
@@ -388,12 +515,12 @@ function afview_function($atts) {
   $post_id = get_the_ID();
   $afid = get_post_meta($post_id, 'afid', true);
   $af_domain = get_option('af_domain');
-  $af_key = get_option('af_key');
+  $af_key = af_verify_key();
 
   // Find Related Elements
   if ($afid) {
 
-    $af_cloud = get_option('af_cloud_url') . '/api/affinitomics/related/' . $af_key . '?afid=' . $afid . '&limit=' . $limit . '&category_filter=' . $category_filter;
+    $af_cloud = get_option('af_cloud_url') . '/api/affinitomics/related/' . $af_key . '?afid=' . $afid . '&ctype=' . AI_MOJO__TYPE . '&cversion=' . AI_MOJO__VERSION . '&limit=' . $limit . '&category_filter=' . $category_filter;
     if ($affinitomics) {
       $af_cloud = $af_cloud . '&af=' . rawurlencode($affinitomics);
     }
@@ -561,7 +688,7 @@ function place_jquery_tag($post){
   );
 
   if ($affinitomics['descriptors'] || $affinitomics['draws'] || $affinitomics['distances']) {
-    $af_cloud_url = get_option('af_cloud_url') . '/api/affinitomics/cloudify/' . get_option('af_key') . '/?';
+    $af_cloud_url = get_option('af_cloud_url') . '/api/affinitomics/cloudify/' . af_verify_key() . '/?';
 
     $af_cloud_url .= '&url=' . get_permalink($id);
     $af_cloud_url .= '&title=' . get_the_title($id);
@@ -571,6 +698,9 @@ function place_jquery_tag($post){
     $af_cloud_url .= '&uid=' . $id;
     $af_cloud_url .= '&category=' . $cat_string;
     $af_cloud_url .= '&status=' . $post_status;
+    $af_cloud_url .= '&ctype=' . AI_MOJO__TYPE;
+    $af_cloud_url .= '&cversion=' . AI_MOJO__VERSION;
+
 
     echo '<input type="hidden" name="af_cloud_sync_placeholder" value="' . $af_cloud_url . '">';
   }
@@ -603,8 +733,8 @@ function af_plugin_options() {
 Affinitomics Commercial Code
 */
 
-  $af_key = get_option('af_key', '');
-  $af_cloud_url = get_option('af_cloud_url', '');
+  $af_key = af_verify_key();
+  $af_cloud_url = af_verify_provider();
 
   echo '<h4>Affinitomics&trade; API Key</h4>';
   echo '<input type="text" name="af_key" value="'.$af_key.'" />';
@@ -985,6 +1115,7 @@ function curl_request($url,$postdata=false) {
   curl_setopt($ch, CURLOPT_URL, $url);
   if ($postdata) {
     //urlify the data for the POST
+    $fields_string .= rawurlencode("ctype") .'='.rawurlencode(AI_MOJO__TYPE).'&' . rawurlencode("cversion") .'='.rawurlencode(AI_MOJO__VERSION).'&';
     foreach($postdata as $key=>$value) { $fields_string .= rawurlencode($key).'='.rawurlencode($value).'&'; }
     rtrim($fields_string, '&');
     curl_setopt($ch,CURLOPT_POST, count($postdata));

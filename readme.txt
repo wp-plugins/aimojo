@@ -104,6 +104,13 @@ So 1000 archetypes could be 50 pages, 900 posts, and 50 ads if you didn’t assi
 
 == Changelog ==
 
+=1.1=
+* updated domain assignment for unregistered users
+* add version syncing code for communication with server
+* resolved issue for legacy users with ajax pointing to wrong directory
+* updated pathing from WP_PLUGIN_URL to recommended best practices plugins_url()
+* added plugin_activation function so the plugin can perform immediate, necessary actions upon the plugin being activated by the user in wordpress
+
 =1.0.0=
 * Yay! We’ve released Ai•mojo!
 * Twilighting support for Affinitomics for Wordpress.
