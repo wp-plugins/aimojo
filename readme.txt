@@ -2,13 +2,14 @@
 Contributors: Prefrent, joewils, hansthered
 Donate link: http://prefrent.com/
 Tags: match, sort, rank, related, related posts, relational, relate, tags, posts, post-types, types, ai, a.i., artificial intelligence, filter, filtering, micro format, context, contextual, contextually, search, data, freeform, construct, descriptors, draws, distance, support-vector, parse, discover, classifier, affinitomics, ai mojo, cognitive, decision support, big data, cookies
+ 
 Requires at least: 3.6
-Tested up to: 4.2.3
-Stable tag: 1.1
+Tested up to: 4.1.1
+Stable tag: 1.1.1
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Aimojo™ - Match, Rank, Relate anything!
+Aimojo™ - Match, Rank, Relate anything! 
 **Replaces Affinitomics for Wordpress**
 
 == Description ==
@@ -37,7 +38,7 @@ Aimojo™ for Wordpress uses a RESTful API to communicate with the Affinitomics�
 
 1. Install the plugin
 1. In the admin panel, find the “Affinitomics” menu (usually below Posts) and select “settings”
-1. Make sure that there is an API key present in the field. If the field is empty, or no key is recognized, register the plugin and claim your key via http://affinitomics.com/register
+1. Make sure that there is an API key present in the field. If the field is empty, or no key is recognized, register the plugin and claim your key via http://affinitomics.com/register 
 1. From the resulting page, copy the API key and paste it in the API field in your settings.
 1. Next, under “To which Post-types would you like to apply your Affinitomics™?” check the boxes for the post-types you want to use with Affinitomics.
 1. Now scroll to the bottom and save changes. Unless you want to configure Google Custom Search (CSE) to work with Affinitomics, you’re done.
@@ -52,14 +53,14 @@ Aimojo™ for Wordpress uses a RESTful API to communicate with the Affinitomics�
 1. For your Google API Key (separate from your Affinitomics API key above) follow the instructions here [https://cloud.google.com/console](https://cloud.google.com/console)
 1. For your Google Custom Search Engine (CSE) ID follow the instructions here [https://developers.google.com/custom-search/](https://developers.google.com/custom-search/)
 
-= NOTE: Existing pages and posts (rather, the Affinitomics placed on them) must be exported to the Affinitomics cloud before any of them will work. =
+= NOTE: Existing pages and posts (rather, the Affinitomics placed on them) must be exported to the Affinitomics cloud before any of them will work. = 
 1. Under the Affinitomics menu choose “Cloud Export.”
 2. Check “Make it so” and wait for a bit. It won’t take too long, but we haven’t bothered to give you a spinner yet, sorry. You’ll see an output list when it’s done.
 3. This will only have to be done once, unless you import pages or posts. It’s handled automatically for new pages, posts, and Archetypes.
 
 = Configure individual Posts, Pages, or Archetypes™ =
 
-1. For existing pages or posts, either copy or move tags to the “Descriptors” field in the page or post editor.
+1. For existing pages or posts, either copy or move tags to the “Descriptors” field in the page or post editor. 
 1. If you want like objects to attract like objects in your system, copy the tags to both “Descriptors” and “Draw”.
 1. It is a best practice (not a requirement) to include a Descriptor of Person, Place, Thing, Concept or Construct in the Descriptors, especially if the Affinitomics are to be exported later, and shared.
 1. Draws are preceded by a plus “+” sign and can be followed by a number from 1 to 5; the greater the draw, the greater the number. If there is no number, it’s value is considered to be “1”. Example; +dogs5 is the highest preference for dogs possible.
@@ -99,7 +100,7 @@ Aimojo™ requires Wordpress 3.5 or better, and php 5.3 or better.
 = How much storage do I get in the Affinitomics™ Cloud =
 
 Users are granted space for 1000 Affinitomic™ constructs and 5,000 transactions per month.
-Larger accounts are available at [Prefrent.com](http://prefrent.com).
+Larger accounts are available at [Prefrent.com](http://prefrent.com). 
 
 = How many “Archetypes” will I need? =
 An Affinitomic Archetype can be applied to a post, page, custom post-type, or archetype (Affinitomics’™ custom post type)
@@ -118,13 +119,6 @@ So 1000 archetypes could be 50 pages, 900 posts, and 50 ads if you didn’t assi
 
 
 == Changelog ==
-
-=1.1=
-* updated domain assignment for unregistered users
-* add version syncing code for communication with server
-* resolved issue for legacy users with ajax pointing to wrong directory
-* updated pathing from WP_PLUGIN_URL to recommended best practices plugins_url()
-* added plugin_activation function so the plugin can perform immediate, necessary actions upon the plugin being activated by the user in wordpress
 
 =1.0.0=
 * Yay! We’ve released Ai•mojo!
@@ -148,21 +142,21 @@ By dividing these tags into Descriptors (what it is), Draws (as in drawing close
 
 It’s easy to derive Affinitomics from these tags. “dog, big, k9, furry” are all easily recognizable as Descriptors. The Draws are easy to recognize as well, and we can take a shortcut in writing them that will differentiate them from Descriptors. They become: +eating, +kids, +snow. We also take a shortcut on what are easy to spot as Distances, and they become: -cars, -cats. By separating the tags into three types of Affinitomics, not only have they become more useful for the computer system, they are actually easier to write and take up less space.
 
-Traditional Tags look like this:
+Traditional Tags look like this: 
 = dog, big, k9, furry, eats a lot, good with kids, likes snow, chases cars, chases cats =
 
-Whereas the features in an Affinitomic Archetype look like this:
+Whereas the features in an Affinitomic Archetype look like this: 
 = dog, big, k9, furry, +eating, +kids, +snow, -cars, -cats =
 
-So now you know how to write Affinitomics, you can see that it takes much less time than writing tags, and by categorizing tags into Descriptors, Draws and Distances, you’ve made the computer much happier.
+So now you know how to write Affinitomics, you can see that it takes much less time than writing tags, and by categorizing tags into Descriptors, Draws and Distances, you’ve made the computer much happier.  
 
 = It’s like sorting laundry – it takes the same amount of time and results come out in the wash. With these Affinitomics instead of tags, algorithms can much more quickly determine matches, affinities, and sort values. =
 
 = Extra Credit =
 
-Affinitomics are even more valuable with attenuation – telling the system how much to value Draws and Distances. For example: How much does the dog like to eat?  Or which does it hate more; cars or cats? The attenuated Affinitomics for the St. Bernard answer those questions like this:
+Affinitomics are even more valuable with attenuation – telling the system how much to value Draws and Distances. For example: How much does the dog like to eat?  Or which does it hate more; cars or cats? The attenuated Affinitomics for the St. Bernard answer those questions like this: 
 = dog, big, k9, furry, +eating2, +kids, +snow4, -cars2, -cats5 =
 
-You’ll notice that it’s still less data than the tags, even though the Affinitomics now represent a three dimensional feature space which is far more valuable for knowledge retrieval, discovery, and machine learning. Because of this, Affinitomics can be evaluated, sorted, and grouped much faster and more accurately than tags. In addition, since the Affinitomics essentially make the information self-ranking and self-sorting, systems that use Affinitomics don’t require categories.
+You’ll notice that it’s still less data than the tags, even though the Affinitomics now represent a three dimensional feature space which is far more valuable for knowledge retrieval, discovery, and machine learning. Because of this, Affinitomics can be evaluated, sorted, and grouped much faster and more accurately than tags. In addition, since the Affinitomics essentially make the information self-ranking and self-sorting, systems that use Affinitomics don’t require categories. 
 
 There you have it. You now know how to create Affinitomic Archetypes – a fancy way of saying that you understand how and why you should sort your laundry, errr, tags.

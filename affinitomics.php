@@ -3,7 +3,7 @@
 Plugin Name: aimojo
 Plugin URI: http://prefrent.com
 Description: Apply Affinitomic Descriptors, Draws, and Distance to Posts and Pages.  Shortcode to display Affinitomic relationships. Google CSE with Affinitomics.
-Version: 1.1
+Version: 1.1.1
 Author: Prefrent
 Author URI: http://prefrent.com
 */
@@ -29,7 +29,7 @@ Copyright (C) 2015 Prefrent
 // | MA 02110-1301 USA                                                    |
 // +----------------------------------------------------------------------+
 
-define( 'AI_MOJO__VERSION', '1.1.0' );
+define( 'AI_MOJO__VERSION', '1.1.1' );
 define( 'AI_MOJO__TYPE', 'aimojo_wp' );
 define( 'AI_MOJO__MINIMUM_WP_VERSION', '3.5' );
 define( 'AI_MOJO__PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -49,24 +49,26 @@ global $afview_count;
 $afview_count = 0;
 add_action( 'init', 'my_script_enqueuer' );
 
+// add an admin notice if aimojo isn't setup
+add_action( is_network_admin() ? 'network_admin_notices' : 'admin_notices',  'display_notice'  );
 
 
 /**
  * Attached to activate_{ plugin_basename( __FILES__ ) } by register_activation_hook()
  */
-function plugin_activation()
+function plugin_activation() 
 {
     $message = '';
-    if ( version_compare( $GLOBALS['wp_version'], AI_MOJO__MINIMUM_WP_VERSION, '<' ) )
+    if ( version_compare( $GLOBALS['wp_version'], AI_MOJO__MINIMUM_WP_VERSION, '<' ) ) 
     {
       load_plugin_textdomain( 'aimojo' );
-
+      
       $message = sprintf(esc_html__( 'aimojo %s requires WordPress %s or higher.' , 'aimojo'), AI_MOJO__VERSION, AI_MOJO__MINIMUM_WP_VERSION ).sprintf(__('Please upgrade WordPress to a current version.', 'aimojo'), 'https://codex.wordpress.org/Upgrading_WordPress', 'http://wordpress.org/extend/plugins/aimojo/download/');
 
    }
-   else
+   else 
    {
-      af_check_for_errors();
+      af_check_for_errors();       
 
       $af_errors = get_option('af_errors', '');
       $af_error_code = get_option('af_error_code', '');
@@ -87,9 +89,9 @@ function plugin_activation()
     }
 }
 
-function plugin_deactivation( )
+function plugin_deactivation( ) 
 {
-  //TODO:
+  //TODO: 
 }
 
 
@@ -201,7 +203,7 @@ function af_verify_provider()
   $af_cloud_url = get_option('af_cloud_url', '');
   if (!isset($af_cloud_url) || $af_cloud_url == "")
   {
-    $af_cloud_url = 'www.affinitomics.com';
+    $af_cloud_url = 'www.affinitomics.com';  
     update_option( 'af_cloud_url' , $af_cloud_url );
   }
   return $af_cloud_url;
@@ -711,6 +713,12 @@ function af_plugin_options() {
     wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
   }
 
+      if ( isset( $_GET['dismissNotice'] ) )
+      {
+        update_option( 'af_banner_notice_dismissed' , 'true' );  
+      }
+
+
   af_verify_key();
   echo '<div class="wrap">';
   echo '<h2>Affinitomics Plugin Settings</h2>';
@@ -866,6 +874,47 @@ function af_register_settings() {
   register_setting('af-settings-group', 'af_error_code');
   register_setting('af-cloud-settings-group', 'af_cloudify');
 }
+
+
+function extraView( $name, array $args = array() ) 
+{
+  $args = apply_filters( 'aimojo_view_arguments', $args, $name );
+
+  foreach ( $args AS $key => $val ) 
+  {
+    $$key = $val;
+  }
+
+  load_plugin_textdomain( 'aimojo' );
+
+  $file = AI_MOJO__PLUGIN_DIR . 'views/'. $name . '.php';
+
+  include( $file );
+}
+
+function display_notice() 
+{
+  // only show notice if we're either a super admin on a network or an admin on a single site
+  $show_notice = current_user_can( 'manage_network_plugins' ) || ( ! is_multisite() && current_user_can( 'install_plugins' ) );
+
+  if ( !$show_notice )
+    return;
+
+  $af_key = af_verify_key();
+  $af_cloud_url = af_verify_provider();
+
+  $dismissed = get_option( 'af_banner_notice_dismissed', '' );
+  if ($dismissed != 'true')
+  {
+    $registerLink = 'http://' . $af_cloud_url . '/users/sign_up?key=' . $af_key;
+    $postOptionsUrl = 'edit.php?post_type=archetype&page=affinitomics&dismissNotice=1';
+    $bannerImage = 'register-aimojo-mod.jpg';
+
+
+    extraView( 'notice', array( 'bannerLink' => $registerLink, 'postOptionsUrl' => $postOptionsUrl, 'bannerImage' => $bannerImage ) );
+  }
+}
+
 
 /*
 ----------------------------------------------------------------------
