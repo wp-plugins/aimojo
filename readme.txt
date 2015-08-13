@@ -1,5 +1,5 @@
 === Plugin Name ===
-Contributors: Prefrent, joewils, hansthered
+Contributors: Prefrent
 Donate link: http://prefrent.com/
 Tags: match, sort, rank, related, related posts, relational, relate, tags, posts, post-types, types, ai, a.i., artificial intelligence, filter, filtering, micro format, context, contextual, contextually, search, data, freeform, construct, descriptors, draws, distance, support-vector, parse, discover, classifier, affinitomics, ai mojo, cognitive, decision support, big data, cookies
  
